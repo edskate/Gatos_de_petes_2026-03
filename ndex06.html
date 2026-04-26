@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checklist de Figurinos com Foto</title>
+<style>
+  :root{
+    --bg:#050505;
+    --card:#111;
+    --gold:#d4af37;
+    --gold2:#ffe08a;
+    --text:#fff;
+    --muted:#bbb;
+    --red:#b00020;
+    --green:#13b85a;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(180deg,#000,#151515);
+    color:var(--text);
+    padding:16px;
+  }
+
+  header{
+    text-align:center;
+    border:2px solid var(--gold);
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:16px;
+    background:#080808;
+    box-shadow:0 0 18px rgba(212,175,55,.35);
+  }
+
+  h1{
+    margin:0;
+    color:var(--gold2);
+    font-size:24px;
+    letter-spacing:1px;
+  }
+
+  .subtitle{color:var(--muted); margin-top:8px; font-size:14px}
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    max-width:1100px;
+    margin:auto;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid #333;
+    border-radius:16px;
+    padding:14px;
+    box-shadow:0 0 12px rgba(0,0,0,.5);
+  }
+
+  label{
+    display:block;
+    margin:10px 0 5px;
+    color:var(--gold2);
+    font-weight:bold;
+    font-size:14px;
+  }
+
+  input, select, textarea{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #444;
+    background:#050505;
+    color:white;
+    font-size:16px;
+  }
+
+  textarea{min-height:70px; resize:vertical}
+
+  .music-scroll{
+    height:185px;
+    overflow-y:auto;
+    border:1px solid var(--gold);
+    border-radius:14px;
+    background:#050505;
+    padding:8px;
+    margin-top:8px;
+  }
+
+  .music-option{
+    width:100%;
+    text-align:left;
+    background:#151515;
+    color:#fff;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:10px;
+    margin:5px 0;
+    cursor:pointer;
+  }
+
+  .music-option.active{
+    background:var(--gold);
+    color:#000;
+    border-color:var(--gold2);
+  }
+
+  button{
+    width:100%;
+    border:0;
+    border-radius:14px;
+    padding:13px;
+    margin-top:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    background:var(--gold);
+    color:#000;
+  }
+
+  button.secondary{background:#222; color:white; border:1px solid var(--gold)}
+  button.danger{background:var(--red); color:white}
+  button.success{background:var(--green); color:white}
+
+  video, canvas, .preview-img{
+    width:100%;
+    border-radius:14px;
+    border:1px solid var(--gold);
+    background:#000;
+    margin-top:10px;
+  }
+
+  canvas{display:none}
+
+  .status{
+    padding:10px;
+    border-radius:12px;
+    margin-top:10px;
+    font-weight:bold;
+    text-align:center;
+    background:#1d1d1d;
+    border:1px solid #333;
+  }
+
+  .ok{color:#7CFFB2}
+  .warn{color:#ffd36a}
+
+  .history-item{
+    border:1px solid #333;
+    border-radius:14px;
+    padding:12px;
+    margin-top:12px;
+    background:#080808;
+  }
+
+  .history-head{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    color:var(--gold2);
+    font-weight:bold;
+  }
+
+  .small{font-size:13px; color:var(--muted); line-height:1.45}
+
+  .badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:999px;
+    background:#222;
+    border:1px solid var(--gold);
+    color:var(--gold2);
+    font-size:12px;
+    margin-top:6px;
+  }
+
+  .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  @media(min-width:850px){
+    .grid{grid-template-columns:1fr 1fr}
+    .full{grid-column:1 / -1}
+  }
+
+  @media print{
+    body{background:white; color:black; padding:0}
+    header,.camera-card,.no-print{display:none!important}
+    .card{border:1px solid #000; box-shadow:none; background:white; color:black}
+    .history-item{break-inside:avoid; background:white; color:black; border:1px solid #000}
+    .history-head,label,h2,h3{color:black!important}
+    .small{color:#222}
+    .preview-img{max-width:260px; border:1px solid #000}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CHECKLIST DE FIGURINOS</h1>
+  <div class="subtitle">Fotos em tempo real • Histórico salvo • Relatório em PDF</div>
+  <div id="clock" class="badge">Carregando horário...</div>
+</header>
+
+<main class="grid">
+  <section class="card camera-card">
+    <h2>📸 Câmera em tempo real</h2>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <div class="actions">
+      <button onclick="startCamera('environment')">Câmera traseira</button>
+      <button onclick="startCamera('user')">Câmera frontal</button>
+    </div>
+
+    <button class="success" onclick="takePhoto()">Tirar foto do figurino</button>
+    <div id="photoStatus" class="status warn">Nenhuma foto tirada ainda.</div>
+    <img id="photoPreview" class="preview-img" style="display:none" />
+  </section>
+
+  <section class="card">
+    <h2>🧾 Dados do figurino</h2>
+
+    <label>Nome do dançarino / artista</label>
+    <input id="nome" placeholder="Ex: Edy, Renan, Abizael..." />
+
+    <label>Música / sequência</label>
+    <input id="musica" placeholder="Escolha na lista ou digite uma música..." />
+
+    <div class="music-scroll" id="musicScroll"></div>
+
+    <label>Número da ordem</label>
+    <input id="ordem" type="number" placeholder="Ex: 1, 2, 3..." />
+
+    <label>Tipo de figurino</label>
+    <select id="tipo">
+      <option>Completo</option>
+      <option>Jaqueta</option>
+      <option>Calça</option>
+      <option>Camisa</option>
+      <option>Sapato</option>
+      <option>Chapéu</option>
+      <option>Luva</option>
+      <option>Acessório</option>
+      <option>Outro</option>
+    </select>
+
+    <label>Status do checklist</label>
+    <select id="statusFigurino">
+      <option value="OK">OK - Pronto para show</option>
+      <option value="Ajustar">Precisa ajustar</option>
+      <option value="Faltando">Faltando peça</option>
+      <option value="Sujo">Precisa lavar / higienizar</option>
+      <option value="Danificado">Danificado</option>
+    </select>
+
+    <label>Observações</label>
+    <textarea id="obs" placeholder="Ex: precisa passar, costurar, lavar, trocar peça..."></textarea>
+
+    <button onclick="saveChecklist()">Salvar no histórico</button>
+    <button class="secondary" onclick="clearForm()">Limpar formulário</button>
+  </section>
+
+  <section class="card full">
+    <h2>📁 Histórico salvo</h2>
+    <div class="actions no-print">
+      <button onclick="window.print()">Gerar / salvar PDF</button>
+      <button class="danger" onclick="clearHistory()">Apagar histórico</button>
+    </div>
+    <div id="summary" class="status">Total salvo: 0</div>
+    <div id="history"></div>
+  </section>
+</main>
+
+<script>
+  let stream = null;
+  let currentPhoto = "";
+  const STORAGE_KEY = "checklistFigurinosHistoricoV1";
+
+  const musicas = [
+    "Wanna Be Startin’ Somethin’",
+    "Smooth Criminal",
+    "Dangerous",
+    "Don't Stop ’Til You Get Enough",
+    "Beat It",
+    "Billie Jean",
+    "Thriller",
+    "Black or White",
+    "Shake Your Body (Down To The Ground)",
+    "Heal the World",
+    "Bad"
+  ];
+
+  function renderMusicList(){
+    const box = document.getElementById("musicScroll");
+    box.innerHTML = musicas.map((m, index) => `
+      <button type="button" class="music-option" onclick="selectMusic('${escapeJs(m)}', ${index})">
+        ${index + 1}. ${escapeHtml(m)}
+      </button>
+    `).join("");
+  }
+
+  function selectMusic(nomeMusica, index){
+    document.getElementById("musica").value = nomeMusica;
+    document.getElementById("ordem").value = index + 1;
+
+    document.querySelectorAll(".music-option").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".music-option")[index].classList.add("active");
+  }
+
+  function updateClock(){
+    const now = new Date();
+    document.getElementById("clock").textContent = now.toLocaleString("pt-BR");
+  }
+  setInterval(updateClock,1000);
+  updateClock();
+
+  async function startCamera(facingMode){
+    try{
+      if(stream){
+        stream.getTracks().forEach(track => track.stop());
+      }
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:{ ideal:facingMode } },
+        audio:false
+      });
+      document.getElementById("video").srcObject = stream;
+    }catch(error){
+      alert("Não foi possível abrir a câmera. Verifique a permissão do navegador.");
+    }
+  }
+
+  function takePhoto(){
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const preview = document.getElementById("photoPreview");
+
+    if(!video.srcObject){
+      alert("Abra a câmera primeiro.");
+      return;
+    }
+
+    canvas.width = video.videoWidth || 720;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    currentPhoto = canvas.toDataURL("image/jpeg",0.82);
+
+    preview.src = currentPhoto;
+    preview.style.display = "block";
+    document.getElementById("photoStatus").innerHTML = "<span class='ok'>Foto capturada com sucesso.</span>";
+  }
+
+  function getHistory(){
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  }
+
+  function setHistory(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function saveChecklist(){
+    const nome = document.getElementById("nome").value.trim();
+    const musica = document.getElementById("musica").value.trim();
+    const ordem = document.getElementById("ordem").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const statusFigurino = document.getElementById("statusFigurino").value;
+    const obs = document.getElementById("obs").value.trim();
+
+    if(!nome || !musica || !ordem){
+      alert("Preencha nome, música e ordem do figurino.");
+      return;
+    }
+
+    if(!currentPhoto){
+      const confirmar = confirm("Você ainda não tirou foto. Deseja salvar mesmo assim?");
+      if(!confirmar) return;
+    }
+
+    const item = {
+      id: Date.now(),
+      nome,
+      musica,
+      ordem,
+      tipo,
+      statusFigurino,
+      obs,
+      foto: currentPhoto,
+      dataHora: new Date().toLocaleString("pt-BR")
+    };
+
+    const history = getHistory();
+    history.unshift(item);
+    setHistory(history);
+    renderHistory();
+    clearForm(false);
+    alert("Checklist salvo no histórico.");
+  }
+
+  function clearForm(clearPhoto = true){
+    document.getElementById("nome").value = "";
+    document.getElementById("musica").value = "";
+    document.getElementById("ordem").value = "";
+    document.getElementById("tipo").value = "Completo";
+    document.getElementById("statusFigurino").value = "OK";
+    document.getElementById("obs").value = "";
+
+    document.querySelectorAll(".music-option").forEach(btn => btn.classList.remove("active"));
+
+    if(clearPhoto){
+      currentPhoto = "";
+      document.getElementById("photoPreview").style.display = "none";
+      document.getElementById("photoStatus").innerHTML = "Nenhuma foto tirada ainda.";
+    }
+  }
+
+  function deleteItem(id){
+    if(!confirm("Apagar este registro?")) return;
+    const history = getHistory().filter(item => item.id !== id);
+    setHistory(history);
+    renderHistory();
+  }
+
+  function clearHistory(){
+    if(!confirm("Deseja apagar todo o histórico salvo?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistory();
+  }
+
+  function renderHistory(){
+    const history = getHistory();
+    const box = document.getElementById("history");
+    const summary = document.getElementById("summary");
+
+    summary.textContent = "Total salvo: " + history.length;
+
+    if(history.length === 0){
+      box.innerHTML = "<p class='small'>Nenhum figurino salvo ainda.</p>";
+      return;
+    }
+
+    box.innerHTML = history.map(item => `
+      <div class="history-item">
+        <div class="history-head">
+          <span>Ordem ${escapeHtml(item.ordem)} • ${escapeHtml(item.musica)}</span>
+          <span>${escapeHtml(item.statusFigurino)}</span>
+        </div>
+        <p class="small">
+          <b>Nome:</b> ${escapeHtml(item.nome)}<br>
+          <b>Tipo:</b> ${escapeHtml(item.tipo)}<br>
+          <b>Data e hora:</b> ${escapeHtml(item.dataHora)}<br>
+          <b>Observação:</b> ${escapeHtml(item.obs || "Sem observação")}
+        </p>
+        ${item.foto ? `<img class="preview-img" src="${item.foto}" />` : `<p class="small">Sem foto salva.</p>`}
+        <button class="danger no-print" onclick="deleteItem(${item.id})">Apagar este registro</button>
+      </div>
+    `).join("");
+  }
+
+  function escapeHtml(text){
+    return String(text).replace(/[&<>'"]/g, function(match){
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "'":"&#039;",
+        '"':"&quot;"
+      }[match];
+    });
+  }
+
+  function escapeJs(text){
+    return String(text).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  }
+
+  renderMusicList();
+  renderHistory();
+</script>
+</body>
+</html>

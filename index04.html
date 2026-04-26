@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fala de Palco - EdyMichaelCover</title>
+<meta name="theme-color" content="#000000" />
+<style>
+  :root{
+    --gold:#d4af37;
+    --gold2:#ffdf75;
+    --black:#050505;
+    --red:#6b0000;
+    --white:#f5f5f5;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:radial-gradient(circle at center, #1b1b1b 0%, #000 65%);
+    color:var(--gold);
+    min-height:100vh;
+  }
+
+  .app{
+    max-width:1100px;
+    margin:auto;
+    padding:18px;
+  }
+
+  header{
+    text-align:center;
+    border:2px solid var(--gold);
+    border-radius:18px;
+    padding:18px;
+    background:linear-gradient(135deg,#000,#191919,#000);
+    box-shadow:0 0 25px rgba(212,175,55,.25);
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(26px,5vw,54px);
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+
+  .sub{
+    color:#fff;
+    margin-top:8px;
+    font-size:16px;
+  }
+
+  .panel{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+  }
+
+  .card{
+    border:1px solid rgba(212,175,55,.7);
+    border-radius:16px;
+    padding:15px;
+    background:rgba(0,0,0,.72);
+    box-shadow:0 0 18px rgba(0,0,0,.6);
+  }
+
+  .card h2{
+    margin:0 0 12px;
+    color:var(--gold2);
+    font-size:20px;
+  }
+
+  label{
+    display:block;
+    color:#fff;
+    margin:10px 0 5px;
+    font-size:14px;
+  }
+
+  input, textarea, select{
+    width:100%;
+    border:1px solid var(--gold);
+    background:#080808;
+    color:#fff;
+    border-radius:12px;
+    padding:12px;
+    font-size:16px;
+  }
+
+  textarea{min-height:110px;resize:vertical}
+
+  button{
+    border:none;
+    border-radius:14px;
+    padding:13px 16px;
+    margin:6px 4px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(135deg,var(--gold),#fff0a8,var(--gold));
+    color:#000;
+    box-shadow:0 0 12px rgba(212,175,55,.35);
+  }
+
+  button.dark{
+    background:#111;
+    color:var(--gold);
+    border:1px solid var(--gold);
+  }
+
+  button.red{
+    background:linear-gradient(135deg,#7a0000,#ff2a2a,#7a0000);
+    color:#fff;
+  }
+
+  .stage{
+    margin-top:18px;
+    min-height:420px;
+    border-radius:22px;
+    border:3px solid var(--gold);
+    background:radial-gradient(circle at center, rgba(212,175,55,.18), #000 62%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:28px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 0 40px rgba(212,175,55,.3);
+  }
+
+  .stage::before{
+    content:"";
+    position:absolute;
+    inset:-30%;
+    background:radial-gradient(circle, rgba(255,255,255,.18), transparent 45%);
+    opacity:.25;
+    animation:lightMove 8s infinite alternate;
+  }
+
+  @keyframes lightMove{
+    from{transform:translateX(-12%) translateY(-8%)}
+    to{transform:translateX(12%) translateY(8%)}
+  }
+
+  .line{
+    position:relative;
+    z-index:2;
+    font-size:clamp(30px,6vw,74px);
+    line-height:1.15;
+    color:#fff;
+    text-shadow:0 0 14px #000, 0 0 28px var(--gold);
+    font-weight:bold;
+  }
+
+  .cue{
+    position:absolute;
+    left:15px;
+    bottom:15px;
+    color:var(--gold2);
+    font-size:16px;
+    z-index:3;
+    text-align:left;
+  }
+
+  .timer{
+    position:absolute;
+    right:15px;
+    top:15px;
+    color:#fff;
+    font-size:18px;
+    z-index:3;
+  }
+
+  .light-low{background:radial-gradient(circle at center, rgba(255,255,255,.08), #000 70%)}
+  .light-gold{background:radial-gradient(circle at center, rgba(212,175,55,.45), #000 68%)}
+  .light-red{background:radial-gradient(circle at center, rgba(130,0,0,.45), #000 70%)}
+  .light-full{background:radial-gradient(circle at center, rgba(255,230,120,.75), #000 72%)}
+
+  .history{
+    max-height:230px;
+    overflow:auto;
+    color:#fff;
+    font-size:14px;
+  }
+
+  .history div{
+    border-bottom:1px solid rgba(212,175,55,.25);
+    padding:8px 0;
+  }
+
+  .fullscreen .app{max-width:none;padding:0}
+  .fullscreen header,.fullscreen .panel{display:none}
+  .fullscreen .stage{
+    min-height:100vh;
+    margin:0;
+    border-radius:0;
+    border:none;
+  }
+  .fullscreen .line{font-size:clamp(44px,8vw,110px)}
+
+  @media(max-width:800px){
+    .panel{grid-template-columns:1fr}
+    .stage{min-height:360px}
+    button{width:100%;margin:6px 0}
+  }
+
+  @media print{
+    body{background:#000;color:#000}
+    header,.panel button,.stage,.no-print{display:none!important}
+    .print-area{display:block!important;color:#000;background:#fff;padding:20px;font-family:Arial}
+    .print-area h1{color:#000;font-size:28px;text-align:center}
+    .print-block{border-bottom:1px solid #333;padding:12px 0;font-size:18px}
+  }
+
+  .print-area{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Fala de Palco</h1>
+    <div class="sub">EdyMichaelCover • Telão • Luz • Voz • Música • PDF</div>
+  </header>
+
+  <section class="panel">
+    <div class="card">
+      <h2>🎵 Música / Sincronização</h2>
+      <label>Carregar música do show</label>
+      <input type="file" id="musicFile" accept="audio/*" />
+      <label>Volume da música</label>
+      <input type="range" id="volume" min="0" max="1" step="0.05" value="0.55" />
+      <button onclick="playMusic()">▶ Tocar música</button>
+      <button class="dark" onclick="pauseMusic()">⏸ Pausar</button>
+      <button class="red" onclick="stopMusic()">■ Parar</button>
+    </div>
+
+    <div class="card">
+      <h2>🎤 Controle da Fala</h2>
+      <button onclick="startShow()">🔥 Iniciar show automático</button>
+      <button class="dark" onclick="nextCue()">Próxima fala</button>
+      <button class="dark" onclick="prevCue()">Voltar fala</button>
+      <button class="red" onclick="resetShow()">Resetar</button>
+      <button onclick="toggleFullscreenMode()">📺 Modo telão automático</button>
+      <button onclick="speakCurrent()">🔊 Narrar fala atual</button>
+      <button onclick="toggleAutoVoice()">🤖 Voz automática: <span id="voiceState">OFF</span></button>
+      <button onclick="window.print()">🧾 Exportar PDF</button>
+    </div>
+
+    <div class="card">
+      <h2>💡 Luz Simulada</h2>
+      <label>Escolher luz manual</label>
+      <select id="manualLight" onchange="setManualLight()">
+        <option value="light-low">Luz baixa / suspense</option>
+        <option value="light-gold">Luz dourada / emoção</option>
+        <option value="light-red">Luz vermelha / tensão</option>
+        <option value="light-full">Luz total / final forte</option>
+      </select>
+      <button onclick="flashFinal()">⚡ Explosão final</button>
+    </div>
+
+    <div class="card">
+      <h2>📝 Editar Roteiro</h2>
+      <label>Texto da fala atual</label>
+      <textarea id="editText"></textarea>
+      <button onclick="saveCurrentText()">Salvar fala atual</button>
+      <button class="dark" onclick="saveLocal()">Salvar histórico</button>
+      <button class="red" onclick="clearHistory()">Limpar histórico</button>
+    </div>
+  </section>
+
+  <section class="stage light-low" id="stage">
+    <div class="timer" id="timer">00:00</div>
+    <div class="line" id="line">Pressione INICIAR SHOW</div>
+    <div class="cue" id="cue">Luz: baixa • Pausa: 3s</div>
+  </section>
+
+  <section class="panel">
+    <div class="card">
+      <h2>📜 Histórico salvo</h2>
+      <div class="history" id="history"></div>
+    </div>
+    <div class="card no-print">
+      <h2>📱 Instalação no celular</h2>
+      <p style="color:#fff;line-height:1.5">
+        Para usar como app: salve este arquivo como <b>fala-palco.html</b>, abra no celular e toque em <b>Adicionar à tela inicial</b> pelo navegador.
+      </p>
+    </div>
+  </section>
+</div>
+
+<div class="print-area" id="printArea">
+  <h1>Fala de Palco — EdyMichaelCover</h1>
+  <div id="printContent"></div>
+</div>
+
+<audio id="music"></audio>
+
+<script>
+const roteiro = [
+  {text:"Eu preciso que vocês entendam uma coisa...", light:"light-low", cue:"Luz baixa • silêncio inicial • respira fundo", seconds:4},
+  {text:"Pra mim... isso aqui vai muito além de um show.", light:"light-gold", cue:"Fade dourado lento • olhar para a plateia", seconds:5},
+  {text:"Quando vocês aplaudem...", light:"light-low", cue:"Pausa emocional • spot suave", seconds:4},
+
+
+  {text:"Vocês não estão aplaudindo só quem está aqui em cima.", light:"light-gold", cue:"Abrir palco 50% • voz firme", seconds:5},
+  {text:"Vocês estão aplaudindo uma escolha de vida.", light:"light-gold", cue:"Mão no peito • luz dourada", seconds:5},
+  {text:"Uma história... uma luta que ninguém vê.", light:"light-red", cue:"Contraste dramático • sombra lateral", seconds:5},
+
+  {text:"Toda semana acontece...", light:"light-low", cue:"Tom baixo • suspense", seconds:4},
+  {text:"Alguma coisa que me faz querer parar.", light:"light-red", cue:"Luz vermelha • tensão", seconds:5},
+  
+  {text:"Toda semana.", light:"light-low", cue:"Pausa forte • silêncio", seconds:4},
+  {text:"Mas quando eu estou aqui...", light:"light-gold", cue:"Retorno emocional", seconds:5},
+  {text:"Vocês me dão vontade de continuar esse sonho.", light:"light-full", cue:"Explosão de luz • conexão com plateia", seconds:6},
+
+  
+];
+
+let index = 0;
+let autoTimer = null;
+let secondsTotal = 0;
+let clockTimer = null;
+let autoVoice = false;
+
+const stage = document.getElementById('stage');
+const line = document.getElementById('line');
+const cue = document.getElementById('cue');
+const editText = document.getElementById('editText');
+const timer = document.getElementById('timer');
+const music = document.getElementById('music');
+
+function renderCue(){
+  const item = roteiro[index];
+  stage.className = 'stage ' + item.light;
+  line.textContent = item.text;
+  cue.textContent = item.cue + ' • ' + item.seconds + 's';
+  editText.value = item.text;
+  preparePrint();
+  if(autoVoice) speakCurrent();
+}
+
+function startShow(){
+  resetClock();
+  index = 0;
+  renderCue();
+  playMusic();
+  runAuto();
+}
+
+function runAuto(){
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(()=>{
+    if(index < roteiro.length - 1){
+      index++;
+      renderCue();
+      runAuto();
+    }
+  }, roteiro[index].seconds * 1000);
+}
+
+function nextCue(){
+  clearTimeout(autoTimer);
+  if(index < roteiro.length - 1){ index++; renderCue(); }
+}
+
+function prevCue(){
+  clearTimeout(autoTimer);
+  if(index > 0){ index--; renderCue(); }
+}
+
+function resetShow(){
+  clearTimeout(autoTimer);
+  index = 0;
+  secondsTotal = 0;
+  timer.textContent = '00:00';
+  line.textContent = 'Pressione INICIAR SHOW';
+  cue.textContent = 'Luz: baixa • Pausa: 3s';
+  stage.className = 'stage light-low';
+}
+
+function resetClock(){
+  clearInterval(clockTimer);
+  secondsTotal = 0;
+  clockTimer = setInterval(()=>{
+    secondsTotal++;
+    const m = String(Math.floor(secondsTotal/60)).padStart(2,'0');
+    const s = String(secondsTotal%60).padStart(2,'0');
+    timer.textContent = `${m}:${s}`;
+  },1000);
+}
+
+function saveCurrentText(){
+  roteiro[index].text = editText.value.trim() || roteiro[index].text;
+  renderCue();
+  saveLocal();
+}
+
+function setManualLight(){
+  stage.className = 'stage ' + document.getElementById('manualLight').value;
+}
+
+function flashFinal(){
+  stage.className = 'stage light-full';
+  setTimeout(()=>stage.className='stage light-gold',700);
+}
+
+function toggleFullscreenMode(){
+  document.body.classList.toggle('fullscreen');
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen?.();
+  }else{
+    document.exitFullscreen?.();
+  }
+}
+
+function speakCurrent(){
+  if(!('speechSynthesis' in window)){
+    alert('Este navegador não suporta voz automática.');
+    return;
+  }
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(roteiro[index].text);
+  utter.lang = 'pt-BR';
+  utter.rate = 0.86;
+  utter.pitch = 0.9;
+  speechSynthesis.speak(utter);
+}
+
+function toggleAutoVoice(){
+  autoVoice = !autoVoice;
+  document.getElementById('voiceState').textContent = autoVoice ? 'ON' : 'OFF';
+}
+
+function playMusic(){
+  if(music.src) music.play();
+}
+
+function pauseMusic(){ music.pause(); }
+
+function stopMusic(){
+  music.pause();
+  music.currentTime = 0;
+}
+
+document.getElementById('musicFile').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(file){ music.src = URL.createObjectURL(file); }
+});
+
+document.getElementById('volume').addEventListener('input', e=>{
+  music.volume = e.target.value;
+});
+
+function saveLocal(){
+  const data = {
+    date:new Date().toLocaleString('pt-BR'),
+    roteiro:roteiro.map(r=>({...r}))
+  };
+  const all = JSON.parse(localStorage.getItem('falaPalcoHistorico') || '[]');
+  all.unshift(data);
+  localStorage.setItem('falaPalcoHistorico', JSON.stringify(all));
+  loadHistory();
+}
+
+function loadHistory(){
+  const all = JSON.parse(localStorage.getItem('falaPalcoHistorico') || '[]');
+  const box = document.getElementById('history');
+  box.innerHTML = all.length ? '' : '<div>Nenhum histórico salvo ainda.</div>';
+  all.forEach((h,i)=>{
+    const div = document.createElement('div');
+    div.innerHTML = `<b>${i+1}. ${h.date}</b><br>${h.roteiro.length} falas salvas`;
+    box.appendChild(div);
+  });
+}
+
+function clearHistory(){
+  if(confirm('Limpar todo o histórico salvo?')){
+    localStorage.removeItem('falaPalcoHistorico');
+    loadHistory();
+  }
+}
+
+function preparePrint(){
+  const print = document.getElementById('printContent');
+  print.innerHTML = roteiro.map((r,i)=>`
+    <div class="print-block">
+      <b>${i+1}. ${r.text}</b><br>
+      Luz: ${r.light.replace('light-','')} | Cue: ${r.cue} | Tempo: ${r.seconds}s
+    </div>
+  `).join('');
+}
+
+renderCue();
+loadHistory();
+</script>
+</body>
+</html>

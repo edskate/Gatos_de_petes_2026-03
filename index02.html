@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Fala de Palco - EdyMichaelCover</title>
+<style>
+body {
+    background: black;
+    color: gold;
+    font-family: Arial;
+    text-align: center;
+    padding: 20px;
+}
+h1 {
+    font-size: 30px;
+}
+#fala {
+    font-size: 28px;
+    margin-top: 40px;
+    min-height: 200px;
+}
+button {
+    background: gold;
+    color: black;
+    padding: 15px;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎤 FALA DE PALCO</h1>
+
+<div id="fala">Pressione iniciar</div>
+
+<button onclick="iniciar()">▶ INICIAR</button>
+
+<script>
+const roteiro = [
+"Eu preciso que vocês entendam uma coisa...",
+"Pra mim... isso aqui vai muito além de um show.",
+"Quando vocês aplaudem...",
+"Vocês não estão aplaudindo só quem está aqui em cima.",
+"Vocês estão aplaudindo uma escolha de vida...",
+"Uma história...",
+"Uma luta que ninguém vê.",
+"Isso significa mais do que vocês imaginam.",
+"Toda semana existe um motivo pra continuar...",
+"Mas também um motivo pra desistir.",
+"Mas quando eu estou aqui...",
+"É vocês que me dão força!",
+"Vocês me dão motivo pra continuar esse sonho.",
+"Esse aplauso é de quem não desistiu!"
+];
+
+let i = 0;
+
+function iniciar(){
+    i = 0;
+    proxima();
+}
+
+function proxima(){
+    if(i < roteiro.length){
+        document.getElementById("fala").innerText = roteiro[i];
+        i++;
+        setTimeout(proxima, 4000);
+    }
+}
+</script>
+
+</body>
+</html>

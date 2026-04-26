@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Gastos dos Pets</title>
+<style>
+  :root{
+    --bg:#050505;
+    --card:#101010;
+    --gold:#d4af37;
+    --gold2:#ffe08a;
+    --text:#ffffff;
+    --muted:#bdbdbd;
+    --green:#14b85a;
+    --red:#b00020;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    padding:16px;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(180deg,#000,#181818);
+    color:var(--text);
+  }
+  header{
+    text-align:center;
+    border:2px solid var(--gold);
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:16px;
+    background:#080808;
+    box-shadow:0 0 18px rgba(212,175,55,.35);
+  }
+  h1{margin:0;color:var(--gold2);font-size:24px;letter-spacing:1px}
+  .subtitle{color:var(--muted);margin-top:8px;font-size:14px}
+  .badge{
+    display:inline-block;
+    margin-top:8px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid var(--gold);
+    color:var(--gold2);
+    background:#1b1b1b;
+    font-size:12px;
+  }
+  .container{
+    max-width:1100px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid #333;
+    border-radius:16px;
+    padding:14px;
+    box-shadow:0 0 12px rgba(0,0,0,.5);
+  }
+  label{
+    display:block;
+    margin:10px 0 5px;
+    color:var(--gold2);
+    font-weight:bold;
+    font-size:14px;
+  }
+  input,select,textarea{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #444;
+    background:#050505;
+    color:#fff;
+    font-size:16px;
+  }
+  textarea{min-height:70px;resize:vertical}
+  button{
+    width:100%;
+    border:0;
+    border-radius:14px;
+    padding:13px;
+    margin-top:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    background:var(--gold);
+    color:#000;
+  }
+  button.secondary{background:#222;color:white;border:1px solid var(--gold)}
+  button.danger{background:var(--red);color:white}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .total-box{
+    background:#050505;
+    border:2px solid var(--gold);
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+    margin-top:10px;
+  }
+  .total-label{color:var(--muted);font-size:14px}
+  .total-value{color:var(--gold2);font-size:34px;font-weight:bold;margin-top:6px}
+  .small{font-size:13px;color:var(--muted);line-height:1.45}
+  .item{
+    border:1px solid #333;
+    border-radius:14px;
+    padding:12px;
+    margin-top:10px;
+    background:#080808;
+  }
+  .item-head{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    color:var(--gold2);
+    font-weight:bold;
+  }
+  .valor{color:#7CFFB2;font-size:18px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{border:1px solid #333;padding:10px;text-align:left;font-size:14px}
+  th{background:#1c1c1c;color:var(--gold2)}
+  @media(min-width:850px){.container{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+  @media print{
+    body{background:white;color:black;padding:0}
+    header,.no-print{display:none!important}
+    .card,.item,.total-box{background:white;color:black;border:1px solid #000;box-shadow:none}
+    h2,label,.item-head,.total-value,th{color:black!important}
+    .small,.total-label{color:#222!important}
+    button{display:none!important}
+    th,td{border:1px solid #000;color:black}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>CONTROLE DE GASTOS DOS PETS</h1>
+  <div class="subtitle">Gastos por mês • Histórico salvo • Total automático • PDF</div>
+  <div id="clock" class="badge">Carregando...</div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>🐾 Adicionar gasto do pet</h2>
+
+    <label>Mês</label>
+    <input id="mes" type="month">
+
+    <label>Nome do pet</label>
+    <input id="pet" placeholder="Ex: Nina, Thor, Mel...">
+
+    <label>Tipo de gasto</label>
+    <select id="categoria">
+      <option>Ração-Gold</option>
+      <option>Petisco-Whiskas</option>
+      <option>Veterinário</option>
+      <option>Vacina</option>
+      <option>Remédio</option>
+      <option>Banho e tosa</option>
+      <option>Areia higiênica</option>
+      <option>Tapete higiênico</option>
+      <option>Coleira / guia</option>
+      <option>Brinquedo</option>
+      <option>Transporte / Uber pet</option>
+      <option>Hotel / creche</option>
+      <option>Consulta de emergência</option>
+      <option>Outros</option>
+    </select>
+
+    <label>Descrição</label>
+    <input id="descricao" placeholder="Ex: ração 10kg, consulta, vacina...">
+
+    <label>Valor</label>
+    <input id="valor" type="number" step="0.01" placeholder="Ex: 85.50">
+
+    <label>Observação</label>
+    <textarea id="obs" placeholder="Ex: pago no pix, cartão, compra recorrente..."></textarea>
+
+    <button onclick="adicionar()">Salvar gasto</button>
+    <button class="secondary" onclick="limpar()">Limpar campos</button>
+  </section>
+
+  <section class="card">
+    <h2>💰 Total mensal</h2>
+    <label>Filtrar mês</label>
+    <input id="filtroMes" type="month" onchange="renderizar()">
+
+    <label>Filtrar pet</label>
+    <input id="filtroPet" placeholder="Digite o nome do pet ou deixe vazio" oninput="renderizar()">
+
+    <div class="total-box">
+      <div class="total-label">Total do mês selecionado</div>
+      <div id="total" class="total-value">R$ 0,00</div>
+    </div>
+
+    <div class="grid2 no-print">
+      <button onclick="window.print()">Gerar PDF</button>
+      <button class="danger" onclick="apagarTudo()">Apagar tudo</button>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>📊 Resumo por tipo de gasto</h2>
+    <div id="resumo"></div>
+  </section>
+
+  <section class="card full">
+    <h2>📁 Histórico dos pets</h2>
+    <div id="lista"></div>
+  </section>
+</main>
+
+<script>
+const STORAGE_KEY = "controleGastosPetsMensalV1";
+
+function mesAtual(){ return new Date().toISOString().slice(0,7); }
+function moeda(v){ return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function dados(){ return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"); }
+function salvar(d){ localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); }
+
+function relogio(){ document.getElementById("clock").textContent = new Date().toLocaleString("pt-BR"); }
+setInterval(relogio,1000); relogio();
+
+document.getElementById("mes").value = mesAtual();
+document.getElementById("filtroMes").value = mesAtual();
+
+function adicionar(){
+  const mes = document.getElementById("mes").value;
+  const pet = document.getElementById("pet").value.trim();
+  const categoria = document.getElementById("categoria").value;
+  const descricao = document.getElementById("descricao").value.trim();
+  const valor = parseFloat(document.getElementById("valor").value);
+  const obs = document.getElementById("obs").value.trim();
+
+  if(!mes){ alert("Escolha o mês."); return; }
+  if(!pet){ alert("Digite o nome do pet."); return; }
+  if(!descricao){ alert("Digite a descrição do gasto."); return; }
+  if(isNaN(valor) || valor <= 0){ alert("Digite um valor válido."); return; }
+
+  const item = {id:Date.now(),mes,pet,categoria,descricao,valor,obs,dataHora:new Date().toLocaleString("pt-BR")};
+  const lista = dados();
+  lista.unshift(item);
+  salvar(lista);
+  document.getElementById("filtroMes").value = mes;
+  limpar(false);
+  renderizar();
+}
+
+function limpar(resetMes=true){
+  if(resetMes) document.getElementById("mes").value = mesAtual();
+  document.getElementById("pet").value = "";
+  document.getElementById("categoria").value = "Ração";
+  document.getElementById("descricao").value = "";
+  document.getElementById("valor").value = "";
+  document.getElementById("obs").value = "";
+}
+
+function apagar(id){
+  if(!confirm("Apagar este gasto?")) return;
+  salvar(dados().filter(x=>x.id!==id));
+  renderizar();
+}
+
+function apagarTudo(){
+  if(!confirm("Apagar todo o histórico de gastos dos pets?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderizar();
+}
+
+function escapeHtml(t){
+  return String(t).replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"}[m]));
+}
+
+function filtrados(){
+  const mes = document.getElementById("filtroMes").value || mesAtual();
+  const petFiltro = document.getElementById("filtroPet").value.trim().toLowerCase();
+  return dados().filter(x => x.mes === mes && (!petFiltro || x.pet.toLowerCase().includes(petFiltro)));
+}
+
+function renderizar(){
+  const lista = filtrados();
+  const total = lista.reduce((s,x)=>s+Number(x.valor),0);
+  document.getElementById("total").textContent = moeda(total);
+  renderResumo(lista);
+  renderLista(lista);
+}
+
+function renderResumo(lista){
+  const box = document.getElementById("resumo");
+  if(lista.length===0){ box.innerHTML = "<p class='small'>Nenhum gasto salvo neste filtro.</p>"; return; }
+  const resumo = {};
+  lista.forEach(x => resumo[x.categoria] = (resumo[x.categoria]||0) + Number(x.valor));
+  const linhas = Object.entries(resumo).sort((a,b)=>b[1]-a[1]).map(([cat,total])=>`
+    <tr><td>${escapeHtml(cat)}</td><td>${moeda(total)}</td></tr>
+  `).join("");
+  box.innerHTML = `<table><thead><tr><th>Tipo de gasto</th><th>Total</th></tr></thead><tbody>${linhas}</tbody></table>`;
+}
+
+function renderLista(lista){
+  const box = document.getElementById("lista");
+  if(lista.length===0){ box.innerHTML = "<p class='small'>Nenhum gasto registrado.</p>"; return; }
+  box.innerHTML = lista.map(x=>`
+    <div class="item">
+      <div class="item-head">
+        <span>🐾 ${escapeHtml(x.pet)} • ${escapeHtml(x.categoria)}</span>
+        <span class="valor">${moeda(x.valor)}</span>
+      </div>
+      <p class="small">
+        <b>Mês:</b> ${escapeHtml(x.mes)}<br>
+        <b>Descrição:</b> ${escapeHtml(x.descricao)}<br>
+        <b>Data do registro:</b> ${escapeHtml(x.dataHora)}<br>
+        <b>Observação:</b> ${escapeHtml(x.obs || "Sem observação")}
+      </p>
+      <button class="danger no-print" onclick="apagar(${x.id})">Apagar este gasto</button>
+    </div>
+  `).join("");
+}
+
+renderizar();
+</script>
+</body>
+</html>

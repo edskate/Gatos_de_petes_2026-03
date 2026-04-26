@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Gastos dos Pets</title>
+<style>
+:root{--bg:#050505;--card:#101010;--gold:#d4af37;--gold2:#ffe08a;--muted:#bdbdbd;--red:#b00020;--green:#15b85a}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(#000,#171717);color:white}
+header{text-align:center;border:2px solid var(--gold);border-radius:18px;padding:18px;margin-bottom:14px;background:#080808;box-shadow:0 0 16px rgba(212,175,55,.35)}
+h1{margin:0;color:var(--gold2);font-size:24px}.sub{color:var(--muted);font-size:14px;margin-top:6px}
+.container{max-width:1150px;margin:auto;display:grid;grid-template-columns:1fr;gap:12px}.card{background:var(--card);border:1px solid #333;border-radius:16px;padding:14px}
+label{display:block;margin:10px 0 5px;color:var(--gold2);font-weight:bold;font-size:14px}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #444;background:#050505;color:white;font-size:16px}textarea{min-height:65px}
+button{width:100%;padding:13px;margin-top:10px;border:0;border-radius:14px;background:var(--gold);color:#000;font-weight:bold;font-size:15px;cursor:pointer}.danger{background:var(--red);color:white}.green{background:var(--green);color:white}.dark{background:#222;color:white;border:1px solid var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.total{font-size:34px;color:var(--gold2);font-weight:bold;text-align:center}.alerta{padding:12px;border-radius:12px;text-align:center;font-weight:bold;margin-top:10px;background:#1b1b1b;border:1px solid #333}.ok{color:#7CFFB2}.bad{color:#ff8080}.small{font-size:13px;color:var(--muted);line-height:1.45}.item{border:1px solid #333;border-radius:14px;padding:12px;margin-top:10px;background:#080808}.head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--gold2);font-weight:bold}.valor{color:#7CFFB2;font-size:18px}.nota{width:100%;max-width:280px;border:1px solid var(--gold);border-radius:12px;margin-top:8px}.bar{height:24px;background:#222;border-radius:999px;margin:8px 0;overflow:hidden;border:1px solid #333}.fill{height:100%;background:linear-gradient(90deg,#d4af37,#ffe08a);width:0%;color:#000;text-align:right;padding-right:8px;font-size:12px;font-weight:bold;line-height:24px}.quick{border:1px dashed var(--gold);padding:10px;border-radius:14px;margin-top:10px}
+@media(min-width:850px){.container{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+@media print{body{background:white;color:black;padding:0}header,.no-print{display:none!important}.card,.item{background:white;color:black;border:1px solid #000;box-shadow:none}.small,label,h2,.head,.total{color:black!important}button{display:none!important}.fill{background:#ccc;color:black}.nota{max-width:220px;border:1px solid #000}}
+</style>
+</head>
+<body>
+<header>
+<h1>CONTROLE DE GASTOS DOS PETS</h1>
+<div class="sub">Por mês • por KG ou unidade • gráfico por pet • limite mensal • nota fiscal • PDF</div>
+</header>
+
+<main class="container">
+<section class="card">
+<h2>🐾 Adicionar compra</h2>
+<label>Mês</label><input id="mes" type="month">
+<label>Nome do pet</label><input id="pet" placeholder="Ex: Nina, Thor, Mel">
+<label>Tipo de gasto</label><select id="tipo"><option>Ração</option><option>Petisco</option><option>Veterinário</option><option>Vacina</option><option>Remédio</option><option>Banho e tosa</option><option>Areia higiênica</option><option>Tapete higiênico</option><option>Brinquedo</option><option>Transporte</option><option>Outros</option></select>
+<label>Modo de cálculo</label><select id="modo"><option value="unitario">Por unidade</option><option value="kg">Por KG</option></select>
+<div id="unitBox"><label>Valor da unidade</label><input id="valor" type="number" step="0.01" placeholder="Ex: 50.00"></div>
+<div id="kgBox" style="display:none"><label>Preço por KG</label><input id="precoKg" type="number" step="0.01"><label>Quantidade em KG</label><input id="qtdKg" type="number" step="0.01"></div>
+<label>Descrição da compra</label><textarea id="desc" placeholder="Ex: ração 10kg, petisco, vacina..."></textarea>
+<label>Anexar foto da nota fiscal</label><input id="nota" type="file" accept="image/*" capture="environment">
+<button onclick="salvar()">Salvar compra</button>
+<button class="dark" onclick="limparCampos()">Limpar campos</button>
+<div class="quick no-print"><b>📱 Botão rápido</b><button class="green" onclick="racaoRapida()">Ração automática</button><p class="small">Preenche rapidamente como “Ração” e modo “Por KG”.</p></div>
+</section>
+
+<section class="card">
+<h2>💰 Total e limite mensal</h2>
+<label>Filtrar mês</label><input id="filtroMes" type="month" onchange="render()">
+<label>Limite mensal dos pets</label><input id="limite" type="number" step="0.01" placeholder="Ex: 500" oninput="salvarLimite();render()">
+<div class="total" id="total">R$ 0,00</div>
+<div id="alerta" class="alerta">Defina um limite mensal.</div>
+<div class="grid2 no-print"><button onclick="window.print()">Gerar PDF</button><button class="danger" onclick="limparHistorico()">Limpar histórico</button></div>
+</section>
+
+<section class="card full">
+<h2>📊 Gráfico de gasto por pet</h2>
+<div id="grafico"></div>
+</section>
+
+<section class="card full">
+<h2>📁 Histórico de compras</h2>
+<div id="historico"></div>
+</section>
+</main>
+
+<script>
+const KEY="petsComprasCompletoV2", LIMITE="petsLimiteMensalV2";
+function mesAtual(){return new Date().toISOString().slice(0,7)}
+function moeda(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function get(){return JSON.parse(localStorage.getItem(KEY)||'[]')}
+function set(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function esc(t){return String(t||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+document.getElementById('mes').value=mesAtual();document.getElementById('filtroMes').value=mesAtual();document.getElementById('limite').value=localStorage.getItem(LIMITE)||'';
+document.getElementById('modo').addEventListener('change',()=>{let kg=document.getElementById('modo').value==='kg';document.getElementById('kgBox').style.display=kg?'block':'none';document.getElementById('unitBox').style.display=kg?'none':'block'});
+function salvarLimite(){localStorage.setItem(LIMITE,document.getElementById('limite').value||'')}
+function racaoRapida(){document.getElementById('tipo').value='Ração';document.getElementById('modo').value='kg';document.getElementById('modo').dispatchEvent(new Event('change'));document.getElementById('desc').value='Ração automática';}
+function limparCampos(){document.getElementById('pet').value='';document.getElementById('tipo').value='Ração';document.getElementById('modo').value='unitario';document.getElementById('modo').dispatchEvent(new Event('change'));document.getElementById('valor').value='';document.getElementById('precoKg').value='';document.getElementById('qtdKg').value='';document.getElementById('desc').value='';document.getElementById('nota').value=''}
+function salvar(){
+ const pet=document.getElementById('pet').value.trim(), tipo=document.getElementById('tipo').value, mes=document.getElementById('mes').value, modo=document.getElementById('modo').value, desc=document.getElementById('desc').value.trim();
+ if(!pet||!mes){alert('Preencha o nome do pet e o mês.');return}
+ let valor=0, calculo='';
+ if(modo==='kg'){let pk=parseFloat(document.getElementById('precoKg').value), q=parseFloat(document.getElementById('qtdKg').value);if(isNaN(pk)||isNaN(q)||pk<=0||q<=0){alert('Preencha preço por KG e quantidade.');return}valor=pk*q;calculo=`${q} kg x ${moeda(pk)} por kg = ${moeda(valor)}`}
+ else{valor=parseFloat(document.getElementById('valor').value);if(isNaN(valor)||valor<=0){alert('Digite o valor da unidade.');return}calculo=`Valor por unidade = ${moeda(valor)}`}
+ const file=document.getElementById('nota').files[0];
+ const finalizar=(foto)=>{let lista=get();lista.unshift({id:Date.now(),mes,pet,tipo,modo,desc,valor,calculo,foto,data:new Date().toLocaleString('pt-BR')});set(lista);document.getElementById('filtroMes').value=mes;limparCampos();render()};
+ if(file){const reader=new FileReader();reader.onload=e=>finalizar(e.target.result);reader.readAsDataURL(file)}else finalizar('')
+}
+function apagar(id){if(!confirm('Apagar esta compra?'))return;set(get().filter(x=>x.id!==id));render()}
+function limparHistorico(){if(!confirm('Limpar todo o histórico de compras dos pets?'))return;localStorage.removeItem(KEY);render()}
+function dadosMes(){const m=document.getElementById('filtroMes').value||mesAtual();return get().filter(x=>x.mes===m)}
+function render(){const lista=dadosMes();const total=lista.reduce((s,x)=>s+Number(x.valor),0);document.getElementById('total').textContent=moeda(total);renderAlerta(total);renderGrafico(lista,total);renderHistorico(lista)}
+function renderAlerta(total){const limite=parseFloat(document.getElementById('limite').value);const a=document.getElementById('alerta');if(isNaN(limite)||limite<=0){a.innerHTML='Defina um limite mensal.';return}if(total>limite){a.innerHTML=`<span class="bad">⚠ Limite estourado: passou ${moeda(total-limite)}</span>`}else{a.innerHTML=`<span class="ok">✅ Dentro do limite. Ainda restam ${moeda(limite-total)}</span>`}}
+function renderGrafico(lista,total){const box=document.getElementById('grafico');if(!lista.length){box.innerHTML='<p class="small">Nenhuma compra neste mês.</p>';return}const porPet={};lista.forEach(x=>porPet[x.pet]=(porPet[x.pet]||0)+Number(x.valor));box.innerHTML=Object.entries(porPet).sort((a,b)=>b[1]-a[1]).map(([pet,v])=>{let pct=total?Math.round((v/total)*100):0;return `<div><b>${esc(pet)} — ${moeda(v)}</b><div class="bar"><div class="fill" style="width:${pct}%">${pct}%</div></div></div>`}).join('')}
+function renderHistorico(lista){const box=document.getElementById('historico');if(!lista.length){box.innerHTML='<p class="small">Nenhum histórico salvo neste mês.</p>';return}box.innerHTML=lista.map(x=>`<div class="item"><div class="head"><span>🐾 ${esc(x.pet)} • ${esc(x.tipo)}</span><span class="valor">${moeda(x.valor)}</span></div><p class="small"><b>Data:</b> ${esc(x.data)}<br><b>Cálculo:</b> ${esc(x.calculo)}<br><b>Descrição:</b> ${esc(x.desc||'Sem descrição')}</p>${x.foto?`<img class="nota" src="${x.foto}">`:''}<button class="danger no-print" onclick="apagar(${x.id})">Apagar compra</button></div>`).join('')}
+render();
+</script>
+</body>
+</html>

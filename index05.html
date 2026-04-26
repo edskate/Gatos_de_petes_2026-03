@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Disciplina - EdyMichaelCover</title>
+<style>
+body{
+  background:#000;
+  color:gold;
+  font-family:Arial;
+  text-align:center;
+  padding:10px;
+}
+
+h1{font-size:24px}
+
+.card{
+  border:1px solid gold;
+  border-radius:12px;
+  padding:10px;
+  margin:10px 0;
+}
+
+button{
+  background:gold;
+  color:black;
+  border:none;
+  padding:10px;
+  margin:5px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+select{
+  padding:8px;
+  border-radius:8px;
+}
+
+.dancer{
+  border-bottom:1px solid #333;
+  padding:8px;
+}
+
+.progress{
+  width:100%;
+  background:#222;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:5px;
+}
+
+.bar{
+  height:10px;
+  background:gold;
+}
+
+.bad{background:red}
+.good{background:green}
+
+</style>
+</head>
+<body>
+
+<h1>🎤 Controle de Disciplina em Tempo Real</h1>
+
+<div class="card">
+  <select id="dancer">
+    <option>Abizael</option>
+    <option>Renan</option>
+  </select>
+
+  <br>
+
+  <input id="errorText" placeholder="Descrever erro..." style="width:100%;margin:5px 0;padding:8px;border-radius:8px;">
+  <button onclick="addError()">❌ Erro no Show</button>
+  <input id="backstageText" placeholder="Descrever bastidor..." style="width:100%;margin:5px 0;padding:8px;border-radius:8px;">
+  <button onclick="addBackstage()">⚠️ Bastidor</button>
+  <input id="positiveText" placeholder="Descrever acerto..." style="width:100%;margin:5px 0;padding:8px;border-radius:8px;">
+  <button onclick="addPositive()">✅ Acerto</button>
+</div>
+
+<div class="card" id="panel"></div>
+
+<script>
+
+let dancers = {
+  Abizael:{score:100, errors:0, backstage:0, positive:0},
+  Renan:{score:100, errors:0, backstage:0, positive:0}
+};
+
+function update(){
+  let html="";
+
+  for(let d in dancers){
+    let data = dancers[d];
+
+    let colorClass = data.score < 50 ? 'bad' : data.score > 80 ? 'good' : '';
+
+    html += `
+    <div class="dancer">
+      <b>${d}</b><br>
+      Disciplina: ${data.score}%
+      <div class="progress">
+        <div class="bar ${colorClass}" style="width:${data.score}%"></div>
+      </div>
+      ❌ ${data.errors} | ⚠️ ${data.backstage} | ✅ ${data.positive}
+    </div>`;
+  }
+
+  document.getElementById('panel').innerHTML = html;
+}
+
+function getDancer(){
+  return document.getElementById('dancer').value;
+}
+
+function addError(){
+  let desc = document.getElementById('errorText').value || 'Erro no show';
+  let d = getDancer();
+  dancers[d].errors++;
+  dancers[d].score -= 10;
+  saveLog(d, desc + " (-10)");
+  update();
+}
+
+function addBackstage(){
+  let desc = document.getElementById('backstageText').value || 'Problema bastidor';
+  let d = getDancer();
+  dancers[d].backstage++;
+  dancers[d].score -= 5;
+  saveLog(d, desc + " (-5)");
+  update();
+}
+
+function addPositive(){
+  let desc = document.getElementById('positiveText').value || 'Acerto';
+  let d = getDancer();
+  dancers[d].positive++;
+  dancers[d].score += 5;
+  if(dancers[d].score > 100) dancers[d].score = 100;
+  saveLog(d, desc + " (+5)");
+  update();
+}
+
+function saveLog(name, action){
+  let logs = JSON.parse(localStorage.getItem("logDisciplina") || "[]");
+  logs.unshift({
+    nome:name,
+    acao:action,
+    data:new Date().toLocaleString()
+  });
+  localStorage.setItem("logDisciplina", JSON.stringify(logs));
+}
+
+update();
+
+</script>
+
+</body>
+</html>
